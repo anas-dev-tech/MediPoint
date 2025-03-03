@@ -128,6 +128,8 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+*/.env
+backend/.env
 .env
 .venv
 env/
@@ -169,3 +171,101 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Byte-compiled Python files
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# Django specific
+*.log
+*.pot
+*.pyc
+db.sqlite3
+
+# IDE/editor specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Translations
+locale/
+
+# Media files
+media/
+
+# Environment variables
+.env
+
+# Celery beat schedule file
+celerybeat-schedule
+
+# Sphinx documentation
+docs/_build/
+
+# Testing
+.coverage
+.tox/
+.nox/
+.pytest_cache/
+.cache/
+nosetests.xml
+/spec/reports/
+
+# Static files (if not stored in version control)
+/static/
+
+# HTTP test files
+https/
+*.http
+*.rest
+
+# Migration files (optional - uncomment if you want to ignore migrations)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# macOS specific
+.DS_Store
+
+# Windows specific
+Thumbs.db
+
+# Backup files
+*.bak
+*.tmp
+*~
+
+# PyCharm specific
+.idea/
+*.iml
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Log files
+*.log
