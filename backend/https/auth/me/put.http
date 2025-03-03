@@ -1,0 +1,26 @@
+### Get JWT Token and store it in a variable
+# @name login
+POST http://127.0.0.1:8000/api/auth/token/ HTTP/1.1
+content-type: application/json
+
+{
+    "email": "yasir@gmail.com",
+    "password": "Anas775995183"
+}
+
+### Extract the token from the response and store it in a variable
+@access = {{login.response.body.access}}
+
+### Update user profile using the stored token
+PUT http://127.0.0.1:8000/api/auth/me/ HTTP/1.1
+Authorization: Bearer {{access}}
+content-type: application/json
+
+{
+  "user": {
+    "role": "P",
+    "email": "yasisr@gmail.com",
+    "full_name": "Yasirssss",
+    "gender": "M"
+  }
+}
