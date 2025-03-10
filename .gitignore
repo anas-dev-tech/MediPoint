@@ -50,6 +50,7 @@ media/
 
 # Environment variables
 .env
+.env.production
 
 # Celery beat schedule file
 celerybeat-schedule
@@ -98,3 +99,8 @@ Thumbs.db
 
 # Log files
 *.log
+medipoint_db/*
+
+.env.development
+dist/*
+node_modules/*

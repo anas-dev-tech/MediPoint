@@ -11,7 +11,20 @@ class AppointmentSerializer(serializers.ModelSerializer):
         model = Appointment
         fields = ['id','patient','datetime', 'doctor', 'status', 'fees', 'working_hours','additional_info']
         read_only_fields = ['patient', 'doctor', 'fees']
-        
+    
+        def __init__(self, *args, **kwargs):
+        # Initialize the serializer
+            super(AppointmentSerializer, self).__init__(*args, **kwargs)
+            request = self.context.get("request", None)
+
+            if request.user.is_doctor():
+                self.fields.pop("doctor", None)
+            elif request.user.is_patient():
+                self.fields.pop("patient", None)
+                
+
+    
+    
     def get_datetime(self, obj):
         return obj.working_hours.start_time
     

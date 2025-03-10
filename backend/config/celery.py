@@ -1,11 +1,9 @@
-# celery.py
-
 import os
 from celery import Celery
-from django.conf import settings
 
-# Set the default Django settings module
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+# Determine the settings module based on the environment
+env = os.getenv('ENVIRONMENT', 'local')  # Default to 'local' if not set
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', f'config.settings.{env}')
 
 app = Celery('config')
 
@@ -13,4 +11,7 @@ app = Celery('config')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Load task modules from all registered Django apps
-app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+app.autodiscover_tasks()
+
+# Debugging: Print the settings module being used
+print(f"Using settings module: {os.environ['DJANGO_SETTINGS_MODULE']}")

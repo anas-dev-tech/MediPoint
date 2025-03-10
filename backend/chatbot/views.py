@@ -35,15 +35,10 @@ class ChatBotAPIView(APIView):
         chatbot_session_id = str(kwargs.get(CHATBOT_SESSION_ID, ""))
         if not chatbot_session_id:
             return Response(
-                {"error": "Session ID is required"}, status=status.HTTP_400_BAD_REQUEST
+                {"message": "Session ID is required"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Safely access session data
-        ic(chatbot_session_id)
         session_data = request.session.get(CHATBOT_SESSION_ID, [])
-
-        ic(dict(request.session))
-        # ic(chatbot_session_id)
 
         if chatbot_session_id not in session_data:
             return Response(
@@ -55,14 +50,7 @@ class ChatBotAPIView(APIView):
         user_input = request.data.get("message", "").strip()
         if not user_input:
             return Response(
-                {"error": "Message is required"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # Check if the user wants to exit the conversation
-        if user_input.lower() in ["exit", "quit", "bye"]:
-            return Response(
-                {"response": "Take care! If symptoms persist, consult a doctor."},
-                status=status.HTTP_200_OK,
+                {"message": "Message is required"}, status=status.HTTP_400_BAD_REQUEST
             )
 
         # Initialize or retrieve the chatbot for this session

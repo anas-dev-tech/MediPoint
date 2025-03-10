@@ -3,21 +3,26 @@ import { toast } from "react-toastify"
 import useAuth from "../hooks/useAuth"
 import { getAppointments, payAppointment } from "../api/appointmentAPI"
 import { cancelAppointment } from "../api/appointmentAPI"
-import { BeatLoader } from 'react-spinners'
+import { BeatLoader, BounceLoader } from 'react-spinners'
+import { assets } from "../assets/assets"
 
 const MyAppointments = () => {
   const { isAuthenticated } = useAuth();
   const [appointments, setAppointments] = useState([])
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingPayment, setIsLoadingPayment] = useState(false);
   const [clickedAppointmentId, setClickedAppointmentId] = useState(0)
-
+  const [isAppointmentLoading, setIsAppointmentLoading] = useState(false)
   useEffect(() => {
-    console.log(isAuthenticated)
-    if (isAuthenticated) {
-      getAppointments().then(setAppointments).catch(console.error)
+    const loadAppointment = async ()=>{ 
+      if (isAuthenticated) {
+        setIsAppointmentLoading(true)
+        await getAppointments().then(setAppointments).catch(console.error)
+        setIsAppointmentLoading(false)
+      }
+      console.log(appointments)
     }
-    console.log(appointments)
-  }, [isAuthenticated])
+    loadAppointment();
+    }, [isAuthenticated])
 
   useEffect(()=>{
     setClickedAppointmentId(0)
@@ -26,22 +31,22 @@ const MyAppointments = () => {
   const appointmentPayment = async (appointmentId) => {
     setClickedAppointmentId(appointmentId);
     try {
-      setIsLoading(true)
+      setIsLoadingPayment(true)
       const { data, status } = await payAppointment(appointmentId)
 
       if (status === 200) {
         window.location.href = data.checkout_url; // Redirect to Stripe
-        setIsLoading(false)
+        setIsLoadingPayment(false)
         setClickedAppointmentId(0)
       } else {
         toast.error("Payment failed!");
-        setIsLoading(false)
+        setIsLoadingPayment(false)
         setClickedAppointmentId(0)
       }
     } catch (error) {
       console.log(error.message);
       toast.error("Something went wrong.");
-      setIsLoading(false)
+      setIsLoadingPayment(false)
       setClickedAppointmentId(0)
     }
     setClickedAppointmentId(0);
@@ -53,6 +58,7 @@ const MyAppointments = () => {
       const { data, status } = await cancelAppointment(appointmentId)
       if (status === 200) {
         toast.success(data.detail)
+        setIsAppointmentLoading(true)
         getAppointments().then(setAppointments).catch(console.error)
       } else {
         console.log(data.detail)
@@ -88,10 +94,15 @@ const MyAppointments = () => {
     <div>
       <p className="pb-3 mt-12 font-medium text-zinc-700 border-b">My appointments</p>
       <div>
-        {appointments.map((item, index) => (
+        
+        
+        {isAppointmentLoading?
+        div
+        <BounceLoader color="#50C878" />
+        :(appointments.map((item, index) => (
           <div className="grid grid-cols-[1fr_2fr] gap-4 sm:flex sm:gap-6 py-2 border-gray-200 border-b" key={index}>
             <div>
-              <img className="w-32 bg-indigo-50" src={item.doctor.user.image} alt="" />
+              <img className="w-32 bg-indigo-50" src={item.doctor.user.image || assets.profile_placeholder} alt="" />
             </div>
             <div className="flex-1 text-sm text-zinc-600">
               <p className="text-neutral-800 font-semibold">{item.doctor.user.full_name}</p>
@@ -115,9 +126,9 @@ const MyAppointments = () => {
                         <>
                           <button
                             onClick={() => appointmentPayment(item.id)} // Replace 50 with actual amount
-                            disabled={isLoading} // Disable the button while loading
-                            className={`${isLoading && clickedAppointmentId === item.id && 'bg-primary'} text-sm text-stone-500 text-center sm:min-w-48 py-2 border hover:bg-primary hover:text-white transition-all duration-300`}>
-                            {isLoading && clickedAppointmentId === item.id ? (
+                            disabled={isLoadingPayment} // Disable the button while loading
+                            className={`${isLoadingPayment && clickedAppointmentId === item.id && 'bg-primary'} text-sm text-stone-500 text-center sm:min-w-48 py-2 border hover:bg-primary hover:text-white transition-all duration-300`}>
+                            {isLoadingPayment && clickedAppointmentId === item.id ? (
                               <BeatLoader size={10} color="#ffffff" /> // Show spinner while loading
                             ) : (
                               'Pay Online'
@@ -135,7 +146,7 @@ const MyAppointments = () => {
               }
             </div>
           </div>
-        ))}
+        )))}
       </div>
     </div>
   )

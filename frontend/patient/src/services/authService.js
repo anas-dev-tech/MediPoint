@@ -76,16 +76,20 @@ export const login = async (email, password) => {
   try {
     const response = await publicAPI.post("/auth/token/", { email, password });
     if (response.status !== 200){
-      return toast.error('Credentials are wrong')
+      return {data:response.data, success:false}
     }
     const { access, refresh } = response.data;
+    const role = getUserRoleFromToken(access)
     
+    if(role !== "P"){
+      return {success:false, data:{detail:"Only patient can register here"}}
+    }
     localStorage.setItem("accessToken", access);
     localStorage.setItem("refreshToken", refresh);
 
-    return { success: true, accessToken: access };
+    return { success: true, data:response.data };
   } catch (error) {
-    return { success: false, message: error.response?.data?.message || "Login failed" };
+    return { success: false, data: error.response?.data || "Login failed" };
   }
 };
 // Log the user out
@@ -95,12 +99,9 @@ export const logout = () => {
   // window.location.href = "/login";
 };
 
-export const getUserRoleFromToken = () => {
+export const getUserRoleFromToken = (accessToken) => {
   try {
-    const accessToken = localStorage.getItem("accessToken");
-    
     const decoded = jwtDecode(accessToken);
-
     // Extract the 'role' claim
     const role = decoded.role;
 

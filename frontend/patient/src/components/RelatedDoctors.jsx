@@ -21,7 +21,7 @@ const RelatedDoctors = ({ specialty, docId }) => {
         }
     }, [specialty, docId]); // Include `specialty` and `docId` as dependencies
 
-    return (
+    return relDocs.length > 0 &&  (
         <DoctorsCardList
             title="Related Doctors"
             doctors={relDocs}

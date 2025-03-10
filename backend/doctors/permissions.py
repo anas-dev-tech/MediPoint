@@ -12,3 +12,10 @@ class IsOwnerOrReadOnly(BasePermission):
 
         # Write permissions are only allowed to the owner of the doctor profile
         return obj.user == request.user
+    
+class IsDoctor(BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_doctor():
+            return True
+        
+        return False 

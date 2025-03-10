@@ -12,7 +12,7 @@ import appointments_icon from './appointments_icon.svg'
 import earning_icon from './earning_icon.svg'
 import patients_icon from './patients_icon.svg'
 import verified_icon from './verified_icon.svg'
-
+import profile_placeholder from  './profile_placeholder.png'
 
 export const assets = {
     add_icon,
@@ -28,5 +28,6 @@ export const assets = {
     list_icon,
     tick_icon,
     appointments_icon,
-    earning_icon
+    earning_icon,
+    profile_placeholder
 }

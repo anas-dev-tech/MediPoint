@@ -1,8 +1,8 @@
 import { createContext, useState, useEffect } from "react";
-import { logout, login, register,getUserRoleFromToken, isAuthenticatedOrRefreshToken } from "../services/authService";
+import { logout, login, register, getUserRoleFromToken, isAuthenticatedOrRefreshToken } from "../services/authService";
 import authAPI from "../api/authAPI";
 import PropTypes from 'prop-types';
-import {toast} from 'react-toastify'
+import { toast } from 'react-toastify'
 
 export const AuthContext = createContext();
 
@@ -21,25 +21,15 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       const authStatus = await isAuthenticatedOrRefreshToken();
-      const role = getUserRoleFromToken();
-      
-      if(role !== 'P'){
-        toast.error("only Patient can login in this Page")
-        logout();
-      }
-
-      console.log("role", role)
       setIsAuthenticated(authStatus);
-      if (authStatus) {
-        await getUser();
-      }
       setLoading(false);
     };
-    checkAuth(); 
-  }, []); 
-  
+    checkAuth();
+  }, []);
+
   const handleLogout = async () => {
     setIsAuthenticated(false);
+    setUser({})
     logout();
   }
 
@@ -56,8 +46,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user,register, isAuthenticated, getUser, setUser, login: handleLogin, logout: handleLogout, loading }}>
-      {!loading && children}
+    <AuthContext.Provider value={
+      { 
+        user, register, isAuthenticated, 
+        setLoading, setIsAuthenticated,
+         getUser, setUser,
+          login, logout: handleLogout, loading }}>
+      {children}
     </AuthContext.Provider>
   );
 };

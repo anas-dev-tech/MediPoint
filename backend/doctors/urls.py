@@ -12,8 +12,8 @@ router = DefaultRouter()
 
 
 router.register(r"doctors", DoctorViewSets)
+router.register(r"schedules", ScheduleViewSet)
 nested_router = NestedSimpleRouter(router, r"doctors", lookup="doctor")
-nested_router.register(r"schedules", ScheduleViewSet, basename="doctor-schedule")
 nested_router.register(
     r"working-hours", WorkingHoursViewSet, basename="doctor-working-hours"
 )

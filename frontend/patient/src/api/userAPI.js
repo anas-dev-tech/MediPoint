@@ -2,7 +2,12 @@ import authAPI from "./authAPI";
 
 export const updateMe = async (user) => {
   try {
-    const response = await authAPI.put("/auth/me/", user);
+    const response = await authAPI.put("/auth/me/", user, {
+      headers:{
+        "Content-Type":"multipart/form-data"
+      }
+    });
+    console.log("status" , response.status)
     return { data: response.data, success: response.status === 200 };
   } catch (error) {
     console.error("Error updating user:", error.message || error);

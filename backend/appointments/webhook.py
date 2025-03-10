@@ -7,6 +7,9 @@ from django.shortcuts import get_object_or_404
 from .models import Appointment
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
+from users.tasks import send_email_template
+
+
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @csrf_exempt
@@ -39,5 +42,17 @@ def stripe_webhook(request):
             appointment.status = Appointment.Status.PAID
             appointment.payment_id = session["payment_intent"]
             appointment.save()
-
+            send_email_template.delay(
+                "Payment Notification to Doctor",
+                "emails/payment_notification_doctor.html",
+                context={
+                    'doctor_name':appointment.doctor.user.full_name,
+                    'patient_name':appointment.patient.user.full_name,
+                    'appointment_date_time':appointment.working_hours.start_time,
+                    'payment_amount': appointment.fees,
+                    'payment_method': "Online"
+                },
+                to_email=appointment.doctor.user.email
+            )
+            
     return JsonResponse({"status": "success"}, status=200)

@@ -7,6 +7,7 @@ from django.contrib.auth.hashers import make_password
 class UserAdmin(admin.ModelAdmin):
     list_display = ['email', 'full_name', 'gender']
     list_filter = ['role']
+    search_fields = ['email','full_name']
     
     def save_model(self, request, obj, form, change):
         # Check if the password is being set or changed

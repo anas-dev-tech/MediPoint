@@ -29,7 +29,7 @@ const ResetPasswordForm = () => {
     };
 
     return (
-        <div className="flex justify-center items-center h-screen bg-gray-100">
+        <div className="flex justify-center items-center h-screen">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96">
                 {/* Conditionally render form or success message */}
                 {!isSubmitted ? (

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Doctor, Specialty, Schedule, WorkingHours
 from users.serializers import UserSerializer
+from icecream import ic
 
 
 class WorkingHoursSerializer(serializers.ModelSerializer):
@@ -12,8 +13,12 @@ class WorkingHoursSerializer(serializers.ModelSerializer):
 class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule
-        fields = ["id", "start_time", "end_time", "max_patients", "day", "doctor"]
+        fields = ["id", "start_time", "end_time", "max_patients", "day"]
 
+    def create(self, validated_data):
+        # Automatically assign the doctor from the context (logged-in user)
+        doctor = self.context['request'].user.doctor
+        return Schedule.objects.create(doctor=doctor, **validated_data)
 
 class SpecialtySerializer(serializers.ModelSerializer):
     class Meta:
@@ -63,13 +68,14 @@ class DoctorSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         # Handle nested user updates
         user_data = validated_data.pop("user", None)
+        
         if user_data:
             user_serializer = UserSerializer(
                 instance.user, data=user_data, partial=True
             )
             if user_serializer.is_valid():
                 user_serializer.save()
-
+        
         # Update Doctor fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

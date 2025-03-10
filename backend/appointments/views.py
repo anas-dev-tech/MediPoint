@@ -9,7 +9,7 @@ from .permissions import AppointmentPermissions
 from django.core.exceptions import ValidationError
 from .models import Appointment, WorkingHours
 from icecream import ic
-
+from users.tasks import send_email_template
 
 class AppointmentViewSet(viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
@@ -24,9 +24,9 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_patient():
-            return Appointment.objects.filter(patient=user.patient)
+            return Appointment.objects.filter(patient=user.patient).select_related("doctor")
         elif user.is_doctor():
-            return Appointment.objects.filter(doctor=user.doctor)
+            return Appointment.objects.filter(doctor=user.doctor).select_related("patient")
         return Appointment.objects.none()
 
     def perform_create(self, serializer):
@@ -56,8 +56,33 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             return Response(
                 {"message": f"{str(e)}"}, status=status.HTTP_400_BAD_REQUEST
             )
-
+            
+        if request.user.is_doctor(): 
+            send_email_template.delay(
+                "Appointment Cancellation by Doctor",
+                "emails/appointment_cancelled_patient.html",
+                context={
+                    "patient_name":appointment.patient.user.full_name,
+                    "doctor_name":appointment.doctor.user.full_name,
+                    "support_email":"MediPoint@decodaai.com",
+                    "support_phone":"+123456789"
+                },
+                to_email=appointment.patient.user.email
+            )
+        elif request.user.is_patient():
+            send_email_template.delay(
+                "Appointment Cancellation by Patient",
+                "emails/appointment_cancelled_doctor.html",
+                context={
+                    "patient_name":appointment.patient.user.full_name,
+                    "doctor_name":appointment.doctor.user.full_name,
+                    "appointment_date_time":appointment.working_hours.start_time
+                },
+                to_email=appointment.doctor.user.email
+            )
+            
         return Response({"message": "Appointment canceled"}, status=status.HTTP_200_OK)
+
 
     @action(detail=True, methods=["post"], permission_classes=[AppointmentPermissions])
     def pay(self, request, pk=None):

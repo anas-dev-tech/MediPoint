@@ -1,0 +1,95 @@
+services:
+  # Django app
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    command: gunicorn --bind 0.0.0.0:8000 config.wsgi:application
+    restart: always
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - db
+    environment:
+      - RUN_MIGRATIONS=true
+    env_file:
+      - ./backend/.env
+
+  # PostgreSQL database
+  db:
+    image: postgres:13
+    container_name: postgres_db
+
+    env_file:
+      - ./backend/.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  # Redis for Celery
+  redis:
+    image: redis:6
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  # Celery worker
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: celery_worker
+    command: celery -A config worker --loglevel=info
+    depends_on:
+      - backend
+      - redis
+
+    environment:
+      - RUN_MIGRATIONS=false
+    env_file:
+      - ./backend/.env
+
+  # Celery Beat
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: celery_beat
+    command: celery -A config beat --loglevel=info
+    environment:
+      - RUN_MIGRATIONS=false
+    depends_on:
+      - backend
+      - redis
+    env_file:
+      - ./backend/.env
+
+  # Nginx
+  nginx:
+    image: nginx:latest
+    restart: always
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    volumes:
+      - ./backend:/backend
+      - /etc/ssl/cert.pem:/etc/ssl/cert.pem:ro
+      - /etc/ssl/key.pem:/etc/ssl/key.pem:ro
+      - ./frontend/patient/dist/:/usr/share/nginx/html/patient
+      - ./frontend/doctor/dist:/usr/share/nginx/html/doctor
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro 
+      - ./nginx/sites-enabled:/etc/nginx/sites-enabled
+      - ./nginx/sites-available:/etc/nginx/sites-available
+      - ./nginx/entrypoint.sh:/entrypoint.sh:ro
+
+    depends_on:
+      - backend
+
+# Volumes
+volumes:
+  postgres_data:

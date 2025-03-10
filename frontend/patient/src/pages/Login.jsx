@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useAuth from "../hooks/useAuth";
+import { BeatLoader } from 'react-spinners'
+
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
-  const { login, register, isAuthenticated } = useAuth();
+  const { login, register, loading, setIsAuthenticated, setLoading, getUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     full_name: "",
@@ -46,6 +48,7 @@ const Login = () => {
     }));
   };
 
+
   const onSubmitHandler = async (event) => {
     event.preventDefault();
     try {
@@ -63,10 +66,17 @@ const Login = () => {
           }));
         }
       } else {
-        const { success } = await login(formData.email, formData.password);
+        setLoading(true)
+        const { data, success } = await login(formData.email, formData.password);
         if (success) {
+          await getUser();
+          setIsAuthenticated(true)
           toast.success("Logged in successfully");
           navigate('/')
+          setLoading(false)
+        } else {
+          toast.error(data.detail);
+          setLoading(false)
         }
       }
     } catch (error) {
@@ -146,7 +156,10 @@ const Login = () => {
           type="submit"
           className="bg-primary text-white w-full py-2 rounded-md text-base hover:scale-105 transition-all duration-300"
         >
-          <p>{isSignUp ? 'Create Account' : 'Login'}</p>
+          {loading
+            ? <BeatLoader size={10} color="#ffffff" />
+            : <p>{isSignUp ? 'Create Account' : 'Login'}</p>
+          }
         </button>
         {isSignUp ? (
           <p>

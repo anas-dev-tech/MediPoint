@@ -9,6 +9,9 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import ResetPasswordForm from "./pages/ResetPasswordForm";
 import ResetPasswordConfirmForm from "./pages/ResetPasswordConfirmForm";
+import Schedule from './pages/Schedule'
+import toast, { Toaster } from 'react-hot-toast';
+
 
 
 const App = () => {
@@ -32,9 +35,12 @@ const App = () => {
           <Route path='/dashboard' element={<Dashboard />} />
           <Route path='/appointments' element={<Appointments />} />
           <Route path='/profile' element={<Profile />} />
+          <Route path='/schedule' element={<Schedule />} />
 
         </Routes>
         <ToastContainer />
+        <Toaster />
+
       </div>
     </div>
   ) : (

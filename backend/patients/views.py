@@ -5,7 +5,7 @@ from .serializers import PatientSerializer
 
 
 class PatientViewSets(viewsets.ModelViewSet):
-    queryset = Patient.objects.all()
+    queryset = Patient.objects.all().select_related('user')
     serializer_class = PatientSerializer
     http_method_names = ['get', 'post',]
     

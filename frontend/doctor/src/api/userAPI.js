@@ -9,7 +9,7 @@ export const updateMe = async (user) => {
     // Check if the response status is in the 200-299 range (successful)
     if (response.status >= 200 && response.status < 300) {
       // If successful, return the data
-      return response.data;
+      return {data:response.data, success:true};
     } else {
       // Handle non-successful responses (e.g., 4xx or 5xx errors)
       throw new Error(`Request failed with status ${response.status}`);

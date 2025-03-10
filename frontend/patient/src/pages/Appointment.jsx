@@ -14,7 +14,7 @@ const Appointment = () => {
   const [slotIndex, setSlotIndex] = useState(0)
   const [slotTime, setSlotTime] = useState(0)
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   useEffect(() => {
     getDoctor(docId).then(setDoctor).catch(console.error)
   }, [docId])
@@ -74,7 +74,7 @@ const Appointment = () => {
 
 
   const bookAppointment = async () => {
-    if(!isAuthenticated){
+    if (!isAuthenticated) {
       navigate('/login')
       return toast.error('you should login first')
     }
@@ -95,7 +95,7 @@ const Appointment = () => {
       toast.error(error.message)
     }
   }
-  
+  console.log("user", user)
   return doctor && (
     <div>
       {/* Doctor Details */}
@@ -119,14 +119,14 @@ const Appointment = () => {
                            opacity-0 invisible group-hover:opacity-100 group-hover:visible 
                            transition-opacity duration-500 w-[150px]"
                 >
-                  It has been verified by our team 
+                  It has been verified by our team
                 </div>
               </div>
             }
           </p>
 
           <div className="flex items-center gap-2 text-sm mt-1 text-gray-600">
-            <p>{doctor.degree} - {doctor.specialty}</p>
+            <p>{doctor.education} - {doctor.specialty}</p>
             <button className="py-0.5 px-2 border text-xs rounded-full"> {doctor.experience}</button>
           </div>
           <div >
@@ -159,17 +159,20 @@ const Appointment = () => {
 
         <div className="flex items-center gap-3 w-full overflow-x-scroll mt-4 ">
           {doctor.working_hours.length
-          ?(groupByDateAndDay(doctor.working_hours)[slotIndex].entries.map((item, index) => (
-            <p onClick={() => setSlotTime(item.id)} className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${item.id === slotTime ? 'bg-primary text-white' : 'text-gray-400 border border-gray'}`} key={index}>
-              {`${item.formattedStartTime.toLowerCase()} - ${item.formattedEndTime.toLowerCase()}`}
+            ? (groupByDateAndDay(doctor.working_hours)[slotIndex].entries.map((item, index) => (
+              <p onClick={() => setSlotTime(item.id)} className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${item.id === slotTime ? 'bg-primary text-white' : 'text-gray-400 border border-gray'}`} key={index}>
+                {`${item.formattedStartTime.toLowerCase()} - ${item.formattedEndTime.toLowerCase()}`}
 
-            </p>
-          )))
-        :( <p>Unfortunately, This doctor has not set any schedules</p> )
-        }
+              </p>
+            )))
+            : (<p>Unfortunately, This doctor has not set any schedules</p>)
+          }
         </div>
+        {
+          doctor.working_hours.length > 0 &&
+          <button onClick={bookAppointment} className="bg-primary text-white text-sm font-light px-14 py-3 rounded-full my-6 ">Book an Appointment</button>
+        }
 
-        <button onClick={bookAppointment} className="bg-primary text-white text-sm font-light px-14 py-3 rounded-full my-6 ">Book an Appointment</button>
       </div>
       {/* Listing Related Doctors  */}
       <RelatedDoctors docId={docId} specialty={doctor.specialty} />
