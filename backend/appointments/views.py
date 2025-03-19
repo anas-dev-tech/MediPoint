@@ -10,11 +10,14 @@ from django.core.exceptions import ValidationError
 from .models import Appointment, WorkingHours
 from icecream import ic
 from users.tasks import send_email_template
+from rest_framework.response import Response
+
+
+
 
 class AppointmentViewSet(viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
     permission_classes = [AppointmentPermissions]
-    ordering = ['-working_hours__start_time']
 
     def get_serializer(self, *args, **kwargs):
         # Pass the request context to the serializer
@@ -24,9 +27,9 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_patient():
-            return Appointment.objects.filter(patient=user.patient).select_related("doctor")
+            return Appointment.objects.filter(patient=user.patient).select_related("doctor").order_by('-created_at')
         elif user.is_doctor():
-            return Appointment.objects.filter(doctor=user.doctor).select_related("patient")
+            return Appointment.objects.filter(doctor=user.doctor).select_related("patient").order_by('-created_at')
         return Appointment.objects.none()
 
     def perform_create(self, serializer):
@@ -36,6 +39,9 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         working_hour_id = self.request.data.get("working_hours")
         try:
             working_hours = WorkingHours.objects.get(id=working_hour_id)
+            if not working_hours.patient_left:
+                raise ValidationError("This working hours is at capacity.")
+
         except WorkingHours.DoesNotExist:
             raise ValidationError("Invalid doctor ID.")
 
@@ -43,6 +49,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         doctor = working_hours.doctor
 
         serializer.save(patient=self.request.user.patient, doctor=doctor, fees=fees)
+
 
     # Patient can cancel appointments they made
     # Doctor can cancel appointments they have
@@ -52,12 +59,14 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         ic(appointment)
         try:
             appointment.cancel()
+
         except Exception as e:
             return Response(
                 {"message": f"{str(e)}"}, status=status.HTTP_400_BAD_REQUEST
             )
             
-        if request.user.is_doctor(): 
+
+        if request.user.is_doctor():
             send_email_template.delay(
                 "Appointment Cancellation by Doctor",
                 "emails/appointment_cancelled_patient.html",
@@ -80,7 +89,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                 },
                 to_email=appointment.doctor.user.email
             )
-            
+
         return Response({"message": "Appointment canceled"}, status=status.HTTP_200_OK)
 
 
@@ -115,8 +124,8 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                     }
                 ],
                 mode="payment",
-                success_url="http://localhost:5174/my-appointments",  # Replace with your frontend URL
-                cancel_url="http://localhost:5174/my-appointmnets",
+                success_url="https://medipoint.decodaai.com/p/my-appointments",  # Replace with your frontend URL
+                cancel_url="https://medipoint.decodaai.com/p/my-appointments",
                 metadata={"appointment_id": appointment.id},
             )
 

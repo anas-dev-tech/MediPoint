@@ -1,4 +1,4 @@
-import { toast } from "react-toastify";
+import toast from 'react-hot-toast';
 import { useState } from "react";
 import PropTypes from 'prop-types';
 import { changePassword } from "../api/userAPI";
@@ -25,7 +25,7 @@ const ChangePasswordModal = ({ show, onClose }) => {
     if (!show) return null;
 
     return (
-        <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center'>
+        <div className='fixed top-0 bottom-0 left-0 right-0 z-100 inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center'>
             <div className='bg-white p-6 rounded-lg w-96'>
                 <h2 className='text-xl font-bold mb-4'>Change Password</h2>
                 <input

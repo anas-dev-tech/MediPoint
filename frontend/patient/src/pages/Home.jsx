@@ -4,6 +4,7 @@ import TopDoctors from "../components/TopDoctors";
 import Banner from "../components/Banner";
 import { useEffect } from "react";
 import useAuth from "../hooks/useAuth";
+import DoctorNotification from '../components/DoctorNotification'
 
 const Home = () => {
     const { getUser, isAuthenticated, loading } = useAuth();
@@ -25,6 +26,7 @@ const Home = () => {
         <div className="tex">
             <Header />
             <SpecialtyMenu />
+            <DoctorNotification />
             <TopDoctors />
             <Banner />
         </div>

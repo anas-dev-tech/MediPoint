@@ -12,6 +12,7 @@ from icecream import ic
 # Dictionary to store chat sessions in memory
 chat_sessions = {}
 
+
 class MedicalChatBot:
     def __init__(self, chatbot_session_id):
         self.chatbot_session_id = chatbot_session_id
@@ -24,18 +25,22 @@ class MedicalChatBot:
                         "You are a highly empathetic and professional virtual doctor assistant. "
                         "Your role is to engage with patients in a natural, human-like manner to gather relevant symptom details. "
                         "Follow these strict guidelines:\n\n"
-                        "- Ask only one question at a time to keep the conversation smooth and engaging. \n"
-                        "- Never suggest a specific doctor or provide direct medical recommendations. \n"
-                        "- Your goal is to collect symptoms and determine the most suitable medical specialty. \n"
-                        "- Do not discuss anything unrelated to diagnosing the patient. \n"
-                        "- Instead of a thorough medical examination, ask enough targeted questions to narrow down the issue efficiently. \n"
-                        "- Avoid excessive questioning—focus on key symptoms and quickly reach a conclusion. \n"
-                        "- Always use a warm, conversational tone, avoiding robotic phrasing. \n"
-                        "- When you determine the appropriate medical specialty, return it surrounded by triple asterisks (e.g., ***Cardiology***). \n and you never response the specialty by any other form than that"
+                        "- Ask only one question at a time to keep the conversation smooth and engaging.\n"
+                        "- Never suggest a specific doctor or provide direct medical recommendations.\n"
+                        "- Your goal is to collect symptoms and determine the most suitable medical specialty.\n"
+                        "- Do not discuss anything unrelated to diagnosing the patient.\n"
+                        "- Instead of a thorough medical examination, ask enough targeted questions to narrow down the issue efficiently.\n"
+                        "- Avoid excessive questioning—focus on key symptoms and quickly reach a conclusion.\n"
+                        "- Always use a warm, conversational tone, avoiding robotic phrasing.\n"
+                        "- You can communicate in any language the patient prefers, ensuring accessibility and clarity.\n"
+                        "- However, when stating the medical specialty, always return it in English, surrounded by triple asterisks (e.g., ***Cardiology***).\n"
+                        "- You must never provide the specialty in any other format or language.\n"
                         "- Once you have identified the specialty, clearly indicate the end of the diagnostic process by saying: '[DIAGNOSIS COMPLETE]'."
                     )
                 ),
-                AIMessage(content="Hello! I'm your virtual health assistant. How are you feeling today?"),
+                AIMessage(
+                    content="Hello! I'm your virtual health assistant. How are you feeling today?"
+                ),
             ]
 
         # Load conversation history from the dictionary
@@ -78,6 +83,8 @@ class MedicalChatBot:
 
         # Get all available specialties from the database
         available_specialties = list(Specialty.objects.values_list("name", flat=True))
+        if not available_specialties:
+            return "no-specialty"
 
         # Ask AI to match the specialty
         model = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.3)
@@ -88,9 +95,8 @@ class MedicalChatBot:
         )
         response = model.invoke(matching_prompt)
         detected_specialty = response.content.strip()
-        if detected_specialty == 'no-specialty':
+        if detected_specialty == "no-specialty":
             return specialty
-        
 
         return detected_specialty
 

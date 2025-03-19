@@ -6,10 +6,22 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { toast } from "react-hot-toast";
+import toast from 'react-hot-toast';
 import { MoreHorizontal } from "lucide-react";
 import authAPI from "../api/authAPI";
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+import { BeatLoader } from "react-spinners";
+import { Card } from "@/components/ui/card";
+
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
+
 
 const formatTime = (time) => {
     const [hours, minutes] = time.split(":");
@@ -24,17 +36,34 @@ const Schedule = () => {
     const [schedules, setSchedules] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [open, setOpen] = useState(false);
+    const [prev, setPrev] = useState("")
+    const [next, setNext] = useState("")
+    const [current, setCurrent] = useState(1)
+    const [isLoadingSchedules, setIsLoadingSchedules] = useState(false)
 
     useEffect(() => {
         fetchSchedules();
     }, []);
 
-    const fetchSchedules = async () => {
+    const handleTraverseAppointments = async (pageNumber) => {
+        if (pageNumber === -1) {
+            return
+        }
+        await fetchSchedules(pageNumber);
+    }
+
+    const fetchSchedules = async (pageNumber = 1) => {
         try {
-            const response = await getSchedules();
-            setSchedules(response.data);
+            setIsLoadingSchedules(true)
+            const { data } = await getSchedules(pageNumber);
+            setSchedules(data.results);
+            setCurrent(data.current)
+            setPrev(data.previous)
+            setNext(data.next)
+            setIsLoadingSchedules(false)
         } catch (error) {
             console.error("Error fetching schedules", error);
+            setIsLoadingSchedules(false)
         }
     };
 
@@ -88,43 +117,77 @@ const Schedule = () => {
     };
 
     return (
-        <div className="p-6 flex-1">
+        <div className="w-full max-w-6xl mx-auto p-5">
             <h2 className="text-2xl font-bold mb-4">Manage Schedules</h2>
             <Button onClick={() => { reset(); setEditingId(null); setOpen(true); }}>Create Schedule</Button>
-            <Table className="mt-4 border border-gray-200 rounded-lg overflow-hidden">
-                <TableHeader>
-                    <TableRow className="bg-gray-100">
-                        <TableHead>Day</TableHead>
-                        <TableHead>Start Time</TableHead>
-                        <TableHead>End Time</TableHead>
-                        <TableHead>Max Patients</TableHead>
-                        <TableHead>Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {schedules.map(schedule => (
-                        <TableRow key={schedule.id}>
-                            <TableCell>{schedule.day}</TableCell>
-                            <TableCell>{formatTime(schedule.start_time)}</TableCell>
-                            <TableCell>{formatTime(schedule.end_time)}</TableCell>
-                            <TableCell>{schedule.max_patients}</TableCell>
-                            <TableCell>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="icon">
-                                            <MoreHorizontal className="w-5 h-5" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent>
-                                        <DropdownMenuItem onClick={() => handleEdit(schedule)}>Edit</DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => handleDelete(schedule.id)} className="text-red-600">Delete</DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </TableCell>
+            <Card className={`overflow-hidden shadow-sm mt-4`}>
+                <Table>
+                    <TableHeader>
+                        <TableRow >
+                            <TableHead className={`ps-5`}>#</TableHead>
+
+                            <TableHead>Day</TableHead>
+                            <TableHead>Start Time</TableHead>
+                            <TableHead>End Time</TableHead>
+                            <TableHead>Max Patients</TableHead>
+                            <TableHead>Actions</TableHead>
                         </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                    </TableHeader>
+                    {isLoadingSchedules
+                        ? <TableBody>
+                            <TableRow >
+                                <TableCell colSpan={7} className="text-center">
+                                    <div className="h-50 flex justify-center items-center w-full">
+                                        <BeatLoader color="green" size={10} />
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+
+                        : <TableBody>
+                            {schedules.map((schedule, index) => (
+                                <TableRow key={schedule.id}>
+                                    <TableCell className={`ps-5`}>{index + 1}</TableCell>
+
+                                    <TableCell>{schedule.day}</TableCell>
+                                    <TableCell>{formatTime(schedule.start_time)}</TableCell>
+                                    <TableCell>{formatTime(schedule.end_time)}</TableCell>
+                                    <TableCell>{schedule.max_patients}</TableCell>
+                                    <TableCell>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <MoreHorizontal className="w-5 h-5" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent>
+                                                <DropdownMenuItem onClick={() => handleEdit(schedule)}>Edit</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleDelete(schedule.id)} className="text-red-600">Delete</DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    }
+                </Table>
+                {
+                    next !== prev &&
+                <Pagination>
+                    <PaginationContent>
+                        <PaginationItem>
+                            <PaginationPrevious href="#" onClick={() => handleTraverseAppointments(prev)} />
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink href="#">{current}</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationNext href="#" onClick={() => handleTraverseAppointments(next)} />
+                        </PaginationItem>
+                    </PaginationContent>
+                </Pagination>
+                }
+            </Card>
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>
                     <DialogHeader>
@@ -134,7 +197,7 @@ const Schedule = () => {
                         <select {...register("day")} className="w-full border p-2 rounded">
                             <option value="" disabled>Select a day</option>
                             {daysOfWeek.map(day => (
-                                <option key={day} value={day.slice(0,3).toUpperCase()}>{day}</option>
+                                <option key={day} value={day.slice(0, 3).toUpperCase()}>{day}</option>
                             ))}
                         </select>
                         {errors.day && <p className="text-red-600">{errors.day.message}</p>}

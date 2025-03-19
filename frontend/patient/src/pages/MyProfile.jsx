@@ -1,21 +1,23 @@
 import { useEffect, useState, useMemo } from "react";
-import { toast } from "react-toastify";
+import toast from 'react-hot-toast';
 import useAuth from "../hooks/useAuth";
 import { updateMe, changePassword } from "../api/userAPI";
 import { useNavigate } from 'react-router-dom';
 import { assets } from "../assets/assets";
+import { BeatLoader} from 'react-spinners'
+
 
 const MyProfile = () => {
     const { user, getUser, isAuthenticated } = useAuth();
     const navigate = useNavigate();
     const userData = user?.user || {};
-
+    const [isLoading, setIsLoading] = useState(false)
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [fullName, setFullName] = useState(userData.full_name || "");
     const [gender, setGender] = useState(userData.gender || "");
-    const [dob, setDob] = useState(userData.dob?.split("T")[0] || "");
+    const [dob, setDob] = useState(userData?.dob);
     const [image, setImage] = useState(null);
     const [isEdit, setIsEdit] = useState(false);
 
@@ -42,6 +44,7 @@ const MyProfile = () => {
         const file = e.target?.files?.[0];
         if (file) setImage(file);
     };
+    
 
     const handleChangePassword = async () => {
         try {
@@ -55,16 +58,22 @@ const MyProfile = () => {
 
     const updateUserProfileData = async (e) => {
         e.preventDefault();
-
+        setIsLoading(true)
         try {
             if (!userData) return toast.error("User data is not available.");
 
             const formData = new FormData();
+            console.log("user dob", userData?.dob)
             if (fullName.trim() && fullName !== userData.full_name) formData.append("user[full_name]", fullName);
             if (gender !== userData.gender) formData.append("user[gender]", gender);
-            if (dob !== userData.dob?.split("T")[0]) formData.append("user[dob]", dob);
+            if (dob) formData.append("user[dob]", dob);
+            console.log('date ', dob, typeof dob, !dob, dob!== null)
             if (image) formData.append("user[image]", image);
-
+            console.log("image-> ", image)
+            console.log("formD", formData)
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
             const { data, success } = await updateMe(formData);
             if (success) {
                 await getUser();
@@ -73,7 +82,10 @@ const MyProfile = () => {
             }
         } catch (err) {
             toast.error(err.message || "Failed to update user");
+        }finally{
+            setIsLoading(false)
         }
+
     };
 
     if (!Object.keys(userData).length) return <div>Loading...</div>;
@@ -118,7 +130,16 @@ const MyProfile = () => {
                         className="mt-5 me-5 bg-red-500  px-8 py-2 rounded-full text-white hover:scale-105 transition-all duration-400"
                     >Cancel</button>
 
-                    <button type="submit" className="mt-5  px-8 py-2 rounded-full text-white bg-primary hover:scale-105  transition-all duration-400">Save Information</button>
+                    <button type="submit" className="mt-5  px-8 py-2 rounded-full text-white bg-primary hover:scale-105  transition-all duration-400">
+                        { isLoading 
+                        ? <BeatLoader color="white" size={12} />
+                        : <span>
+                            Save Information
+                            </span>
+                        
+                        }
+
+                    </button>
                 </form>
             ) : (
                 <>

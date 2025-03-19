@@ -24,14 +24,14 @@ class SpecialtyListAPIView(generics.ListAPIView):
 
 
 class DoctorViewSets(viewsets.ReadOnlyModelViewSet):
-    queryset = Doctor.objects.all()
+    queryset = Doctor.available.all()
     serializer_class = DoctorSerializer
     permission_classes = [IsOwnerOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = DoctorFilter
 
     def get_queryset(self):
-        queryset = Doctor.objects.all()
+        queryset = Doctor.available.all()
 
         if self.action == "list":
             queryset = queryset.select_related("user", "specialty")

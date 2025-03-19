@@ -11,10 +11,17 @@ const TopDoctors = () => {
     const buttonLabel = "more"
     const [doctors, setDoctors] = useState([])
 
-
     useEffect(() => {
-        getDoctors().then(setDoctors).catch(console.error);
-    }, []);
+        getDoctors()
+            .then(data => {
+                console.log(data.results)
+                setDoctors(data.results); // Assuming the response has a `results` property
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }, []); 
+
     return (
         <DoctorsCardList
             title={title}

@@ -5,8 +5,9 @@ export const makeAppointment = async (working_hours) => {
   return response;
 };
 
-export const getAppointments = async () => {
-  const response = await authAPI.get("/appointments/");
+export const getAppointments = async (pageNumber=1) => {
+  const response = await authAPI.get(`/appointments/?page=${pageNumber}&page_size=3`);
+  console.log('page', response.data)
   return response.data;
 };
 

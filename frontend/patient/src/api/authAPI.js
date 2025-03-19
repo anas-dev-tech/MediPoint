@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { refreshToken, logout } from '../services/authService';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 const authAPI = axios.create({

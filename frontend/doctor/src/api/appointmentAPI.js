@@ -1,8 +1,10 @@
 import authAPI from "./authAPI";
 
-export const getAppointments = async () => {
-  const response = await authAPI.get("/appointments/");
+export const getAppointments = async (pageNumber=1) => {
+  const response = await authAPI.get(`/appointments/?page=${pageNumber}&page_size=5`);
+  console.log("Appointments--", response.data)
   return response.data;
+
 };
 
 export const cancelAppointment = async (appointmentId) => {

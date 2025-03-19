@@ -2,22 +2,18 @@ import authAPI from "./authAPI";
 
 export const updateMe = async (user) => {
   try {
-    // Make the API call
-    console.log(user);
-    const response = await authAPI.put("/auth/me/", user);
-
-    // Check if the response status is in the 200-299 range (successful)
-    if (response.status >= 200 && response.status < 300) {
-      // If successful, return the data
-      return {data:response.data, success:true};
-    } else {
-      // Handle non-successful responses (e.g., 4xx or 5xx errors)
-      throw new Error(`Request failed with status ${response.status}`);
-    }
+    const response = await authAPI.put("/auth/me/", user, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data; // Return only the response data
   } catch (error) {
-    // Handle any errors (network issues, server errors, etc.)
-    console.error("Error updating user:", error.message || error);
-    throw error; // Re-throw the error if you want the calling component to handle it
+    if (error.response) {
+      console.error("API Error:", error.response.data); // Log server error response
+      throw error.response.data; // Throw the response data (e.g., { detail: "Error message" })
+    } else {
+      console.error("Unexpected Error:", error);
+      throw new Error("Something went wrong. Please try again."); // Handle unexpected errors
+    }
   }
 };
 

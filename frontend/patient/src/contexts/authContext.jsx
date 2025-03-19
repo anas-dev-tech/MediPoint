@@ -2,7 +2,7 @@ import { createContext, useState, useEffect } from "react";
 import { logout, login, register, getUserRoleFromToken, isAuthenticatedOrRefreshToken } from "../services/authService";
 import authAPI from "../api/authAPI";
 import PropTypes from 'prop-types';
-import { toast } from 'react-toastify'
+import { useNavigate } from "react-router-dom";
 
 export const AuthContext = createContext();
 
@@ -10,11 +10,15 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true); // Initialize loading as true
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-
+  const navigate = useNavigate();
   const getUser = async () => {
     if (isAuthenticated) {
       const { data } = await authAPI.get('/auth/me/');
-      setUser(data);
+      if(data.user.role !== "P"){
+        handleLogout();
+      }else{
+        setUser(data);
+      }
       // const role = getUserRoleFromToken();
     }
   };
@@ -29,7 +33,8 @@ export const AuthProvider = ({ children }) => {
 
   const handleLogout = async () => {
     setIsAuthenticated(false);
-    setUser({})
+    setUser({});
+    navigate('/');
     logout();
   }
 

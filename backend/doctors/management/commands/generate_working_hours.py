@@ -28,7 +28,7 @@ class Command(BaseCommand):
                             doctor=schedule.doctor,
                             start_time=start_datetime,
                             end_time=end_datetime,
-                            max_patients=schedule.max_patients
+                            patient_left=schedule.max_patients
                         )
 
         self.stdout.write(self.style.SUCCESS("Successfully generated working hours for the next week."))

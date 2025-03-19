@@ -1,16 +1,15 @@
-import authAPI from "./authAPI";
 import publicAPI from "./publicAPI";
 
 
 
-export const getDoctors = async () =>{
-    const response  = await publicAPI('/doctors')
+export const getDoctors = async (pageNumber=1) =>{
+    const response  = await publicAPI(`/doctors/?page=${pageNumber}`)
     console.log(response.data)
     return response.data
 }
 
-export const getDoctorsBySpecialty = async (specialty) =>{
-    const response  = await publicAPI(`/doctors/?specialty=${specialty}`)
+export const getDoctorsBySpecialty = async (specialty,pageNumber=1) =>{
+    const response  = await publicAPI(`/doctors/?page=${pageNumber}&specialty=${specialty}`)
     return response.data
 }
 
@@ -25,7 +24,7 @@ export const getDoctor = async (doctorId) =>{
 export const getSpecialties = async ()=>{
     const response = await publicAPI('/specialties/')
     console.log(response.data)
-    return response.data
+    return response.data.results
 }
 
 export const getWorkingHours = async (doctorId) =>{

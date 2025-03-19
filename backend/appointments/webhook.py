@@ -13,8 +13,6 @@ from users.tasks import send_email_template
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @csrf_exempt
-
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Allows access without authentication
 def stripe_webhook(request):

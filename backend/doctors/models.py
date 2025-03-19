@@ -1,7 +1,7 @@
 from django.db import models
 from users.models import User
 from django.core.exceptions import ValidationError
-
+from model_utils.managers import QueryManager
 from django.utils.timezone import now
 
 
@@ -25,20 +25,28 @@ class Doctor(models.Model):
     status = models.CharField(
         max_length=50, choices=Status.choices, default=Status.UNAVAILABLE
     )
-    is_verified = models.BooleanField(db_default=False)
+    is_verified = models.BooleanField(default=False)
     degree_document = models.FileField(
         upload_to="doctor/degree", blank=True, null=True, max_length=1000
     )
+    address_line1 = models.CharField(max_length=250, blank=True, default='')
+    address_line2 = models.CharField(max_length=250, blank=True, default='')
+    
+    objects = models.Manager()
+    available = QueryManager(status=Status.AVAILABLE)
+
+    def clean(self):
+        """Custom validation to ensure a doctor cannot be available without a specialty."""
+        if self.status == Doctor.Status.AVAILABLE and not self.specialty:
+            raise ValidationError({"specialty": "Doctors cannot be available without a specialty."})
 
     def save(self, *args, **kwargs):
-        if self.status == Doctor.Status.AVAILABLE and not self.specialty:
-            raise ValueError("Doctors cannot be available without a specialty")
-
+        """Ensures validation runs before saving the object."""
+        self.clean()  # Calls the clean() method before saving
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.user.full_name
-
 
 class Specialty(models.Model):
     icon = models.FileField(
@@ -116,7 +124,8 @@ class WorkingHours(models.Model):
     )
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-    max_patients = models.IntegerField(default=5)
+    
+    patient_left = models.IntegerField(default=5)
     status = models.CharField(
         max_length=3, choices=Status.choices, default=Status.UPCOMING
     )

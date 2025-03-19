@@ -10,6 +10,8 @@ export default defineConfig({
     port: 4173,
     host: "0.0.0.0",
   },
+  base: '/d/', // Set the base path for assets
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"), // Use the 'path' module here

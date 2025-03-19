@@ -2,18 +2,23 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom"
 import { assets } from "../assets/assets";
-import { toast } from "react-toastify";
+import toast from 'react-hot-toast';
 import { getDoctor } from "../api/doctorAPI";
 import RelatedDoctors from "../components/RelatedDoctors";
 import { makeAppointment } from "../api/appointmentAPI";
 import useAuth from "../hooks/useAuth";
+import { BeatLoader } from "react-spinners";
+
+
 
 const Appointment = () => {
   const { docId } = useParams();
   const [doctor, setDoctor] = useState(null)
   const [slotIndex, setSlotIndex] = useState(0)
   const [slotTime, setSlotTime] = useState(0)
+  const [isLoadingBookingAppointment, setIsLoadingBookingAppointment] = useState(false)
   const navigate = useNavigate();
+  
   const { isAuthenticated, user } = useAuth();
   useEffect(() => {
     getDoctor(docId).then(setDoctor).catch(console.error)
@@ -74,11 +79,14 @@ const Appointment = () => {
 
 
   const bookAppointment = async () => {
+    setIsLoadingBookingAppointment(true)
     if (!isAuthenticated) {
       navigate('/login')
+      setIsLoadingBookingAppointment(false)
       return toast.error('you should login first')
     }
     if (!slotTime) {
+      setIsLoadingBookingAppointment(false)
       return toast.error('You should select time slot, First')
     }
     try {
@@ -86,13 +94,16 @@ const Appointment = () => {
       if (status === 201) {
         toast.success("Appointment booked successfully")
         navigate('/my-appointments')
+        setIsLoadingBookingAppointment(false)
       } else {
         toast.error(data.detail)
         console.log(data)
+        setIsLoadingBookingAppointment(false)
         return
       }
     } catch (error) {
       toast.error(error.message)
+      setIsLoadingBookingAppointment(false)
     }
   }
   console.log("user", user)
@@ -157,20 +168,41 @@ const Appointment = () => {
         </div>
 
 
-        <div className="flex items-center gap-3 w-full overflow-x-scroll mt-4 ">
+
+
+        <div className="flex items-center gap-5 w-full overflow-x-scroll">
           {doctor.working_hours.length
             ? (groupByDateAndDay(doctor.working_hours)[slotIndex].entries.map((item, index) => (
-              <p onClick={() => setSlotTime(item.id)} className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${item.id === slotTime ? 'bg-primary text-white' : 'text-gray-400 border border-gray'}`} key={index}>
-                {`${item.formattedStartTime.toLowerCase()} - ${item.formattedEndTime.toLowerCase()}`}
 
-              </p>
+              <div className=" relative group pt-7">
+                <p onClick={() => setSlotTime(item.id)} className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${item.id === slotTime ? 'bg-primary text-white' : 'text-gray-400 border border-gray'} ${item.patient_left === 0 && 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'}`} key={index}>
+                  {`${item.formattedStartTime.toLowerCase()} - ${item.formattedEndTime.toLowerCase()} `}
+                  <span className="border-l-1 border-gray-200 ps-1">{` ${item.patient_left}`}</span>
+                </p>
+                {item.patient_left === 0 &&
+                  <span class="absolute top-2 left-1/3 -translate-x-1/2 whitespace-nowrap bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition z-[100]">
+                    At Capacity
+                  </span>
+                }
+              </div>
+
             )))
             : (<p>Unfortunately, This doctor has not set any schedules</p>)
           }
         </div>
         {
-          doctor.working_hours.length > 0 &&
-          <button onClick={bookAppointment} className="bg-primary text-white text-sm font-light px-14 py-3 rounded-full my-6 ">Book an Appointment</button>
+          doctor.working_hours.length > 0 && !(doctor.working_hours.find(
+            (item) => item.id === slotTime && item.patient_left === 0
+          )) &&
+          <button onClick={bookAppointment} className="bg-primary text-white text-sm font-light px-14 py-3 rounded-full my-6 ">
+            {
+              isLoadingBookingAppointment
+                ? <BeatLoader color="white" size="10" />
+                : <span>
+                  Book an Appointment
+                </span>
+            }
+          </button>
         }
 
       </div>

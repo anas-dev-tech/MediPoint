@@ -11,7 +11,7 @@ const RelatedDoctors = ({ specialty, docId }) => {
         if (specialty) {
             getDoctorsBySpecialty(specialty)
                 .then((fetchedDoctors) => {
-                    setDoctors(fetchedDoctors);
+                    setDoctors(fetchedDoctors.result);
 
                     // Filter doctors after fetching
                     const filteredDoctors = fetchedDoctors.filter((doc) => doc.user.id !== docId);

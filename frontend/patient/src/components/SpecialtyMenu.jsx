@@ -20,7 +20,7 @@ const SpecialtyMenu = () => {
                 {
                     specialties.map((item, index)=>(
                         <Link onClick={()=>scrollTo(0,0)} to={`/doctors/${item.slug}`} key={index} className="flex flex-col items-center text-xs cursor-pointer flex-shrink-0 hover:translate-y-[-10px] transition-all duration-500">
-                            <img className="w-16 sm:w-24 mb-2" src={item.icon} alt="" />
+                            <img className="w-16 h-16 sm:w-24 sm:h-24 mb-2" src={item.icon} alt="" />
                             <p>{item.name}</p>
                         </Link>
                     ))

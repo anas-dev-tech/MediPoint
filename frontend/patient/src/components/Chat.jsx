@@ -4,9 +4,9 @@ import useAuth from "../hooks/useAuth";
 import { assets } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 
-
 const FloatingChat = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [showTooltip, setShowTooltip] = useState(false); // State for tooltip visibility
     const { isAuthenticated, user } = useAuth();
     const [messages, setMessages] = useState([
         {
@@ -21,8 +21,9 @@ const FloatingChat = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [isDetect, setIsDetect] = useState(false);
     const [specialty, setSpecialty] = useState("");
-    const [isSpecialtyExists, setIsSpecialtyExists] = useState(false)
+    const [isSpecialtyExists, setIsSpecialtyExists] = useState(false);
     const chatContainerRef = useRef(null);
+    const tooltipRef = useRef(null); // Ref for tooltip to handle outside clicks
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -37,6 +38,20 @@ const FloatingChat = () => {
         }
     }, [messages]);
 
+    // Close tooltip when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (tooltipRef.current && !tooltipRef.current.contains(event.target)) {
+                setShowTooltip(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
     const initializeChatSession = async () => {
         try {
             if (sessionId) {
@@ -50,6 +65,10 @@ const FloatingChat = () => {
     };
 
     const toggleChat = () => {
+        if (!isAuthenticated) {
+            setShowTooltip(!showTooltip); // Toggle tooltip for non-authenticated users
+            return; // Do not open chat if not authenticated
+        }
         setIsOpen(!isOpen);
     };
 
@@ -63,15 +82,15 @@ const FloatingChat = () => {
     };
 
     const handleSendMessage = async () => {
-        setIsDetect(false)
-        setIsSpecialtyExists(false)
+        setIsDetect(false);
+        setIsSpecialtyExists(false);
         if (inputMessage.trim() === "" || !sessionId) return;
 
         const newMessage = {
             id: messages.length + 1,
             sender: "user",
             text: inputMessage,
-            icon: user.user.image || assets.profile_placeholder,
+            icon: user?.user?.image || assets.profile_placeholder,
         };
         setMessages((prev) => [...prev, newMessage]);
         setInputMessage("");
@@ -92,9 +111,9 @@ const FloatingChat = () => {
                 setIsDetect(true);
                 setSpecialty(response.specialty || "a specialist");
                 if (response.is_existed) {
-                    setIsSpecialtyExists(true)
+                    setIsSpecialtyExists(true);
                 } else {
-                    setIsSpecialtyExists(false)
+                    setIsSpecialtyExists(false);
                 }
             }
         } catch (error) {
@@ -111,18 +130,28 @@ const FloatingChat = () => {
 
     return (
         <div className="fixed bottom-6 right-6 z-50">
+            {/* The floating chat icon with tooltip */}
+            <div className="relative" ref={tooltipRef}>
+                <button
+                    onClick={toggleChat}
+                    className="bg-primary text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg hover:bg-primary-dark transition-all transform hover:scale-110 animate-bounce"
+                >
+                    <img className="w-8 h-8" src={assets.chatbot_floating_icon} alt="Chatbot" />
+                </button>
 
-            {/* The floating chat icon */}
-            <button onClick={toggleChat} className="bg-primary text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg hover:bg-primary-dark transition-all transform hover:scale-110 animate-bounce">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-            </button>
-
+                {/* Tooltip for non-authenticated users */}
+                {!isAuthenticated && showTooltip && (
+                    <div className="absolute bottom-20 right-0 w-48 bg-gray-800 text-white text-sm p-2 rounded-lg opacity-100 transition-opacity duration-300">
+                        Only logged in users can use the chat. You want to{" "}
+                        <button className="ps-1 text-blue-400 underline" onClick={() => navigate("/login")}>
+                            login
+                        </button>
+                    </div>
+                )}
+            </div>
 
             {isOpen && (
-                <div className="absolute bottom-16 right-0 w-96 bg-white rounded-lg shadow-lg border border-gray-200">
-
+                <div className="absolute bottom-16 right-0 w-[80vw] sm:w-[50vw] md:w-[40vw] lg:w-[30vw]  bg-white rounded-lg shadow-lg border border-gray-200">
                     {/* The header */}
                     <div className="bg-primary text-white p-3 rounded-t-lg flex items-center justify-between">
                         <h2 className="text-sm font-semibold">Chatbot</h2>
@@ -132,7 +161,6 @@ const FloatingChat = () => {
                             </svg>
                         </button>
                     </div>
-
 
                     <div ref={chatContainerRef} className="p-3 h-64 overflow-y-auto">
                         {messages.map((message) => (

@@ -11,7 +11,7 @@ env = environ.Env()
 ENVIRONMENT = os.getenv('DJANGO_SETTINGS_MODULE', 'local')
 
 # Load the correct .env file
-if ENVIRONMENT == 'production':
+if ENVIRONMENT == 'config.settings.production':
     env.read_env('.env.production')
 else:
     env.read_env('.env')
@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "django_filters",
     "drf_yasg",
-    "django_celery_results",
     "django_celery_beat",
     "users",
     "doctors",
@@ -139,8 +138,8 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
@@ -166,6 +165,10 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.AllowAny",  # Ensure webhooks are not blocked
     ],
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+
+
+    'DEFAULT_PAGINATION_CLASS': 'users.pagination.CustomPageNumberPagination',
+    'PAGE_SIZE_QUERY_PARAM': 'page_size',  # Allows dynamic page size from frontend
 }
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Ensure session data is stored
@@ -197,10 +200,10 @@ JAZZMIN_SETTINGS = {
     # Logo to use for your site, must be present in static files, used for brand on top left
     "site_logo": "admin/img/logo.svg",
     # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
-    "login_logo": None,
-    # Logo to use for login form in dark themes (defaults to login_logo)
-    "login_logo_dark": None,
-    # CSS classes that are applied to the logo above
+    # "login_logo": None,
+    # # Logo to use for login form in dark themes (defaults to login_logo)
+    # "login_logo_dark": None,
+    # # CSS classes that are applied to the logo above
     "site_logo_classes": "",
     # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
     "site_icon": None,

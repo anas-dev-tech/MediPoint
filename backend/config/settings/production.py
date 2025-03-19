@@ -5,7 +5,7 @@ from .base import *
 DEBUG = False
 
 # Allowed hosts for production
-ALLOWED_HOSTS = ['medipoint.decodaai.com']
+ALLOWED_HOSTS = [env('ALLOWED_HOSTS')]
 
 # Database (use PostgreSQL or another production-ready database)
 DATABASES = {
@@ -22,8 +22,7 @@ DATABASES = {
 
 
 CORS_ALLOWED_ORIGINS = [
-    "https://medipoint-patient.decodaai.com",
-    "https://medipoint-doctor.decodaai.com",  # Example: Allow requests from a React app running on port 3000
+    env('CORS_ALLOWED_ORIGINS'),
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -58,4 +57,4 @@ CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND')   # Use Redis as the result
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
-DBBACKUP_STORAGE_OPTIONS = {'location': '/mnt/volume_fra1_01/medipoint_db/'}
+DBBACKUP_STORAGE_OPTIONS = {'location': env('DBBACKUP_STORAGE_LOCATION')}

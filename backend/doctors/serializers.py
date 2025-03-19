@@ -7,7 +7,7 @@ from icecream import ic
 class WorkingHoursSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkingHours
-        fields = ["id", "start_time", "end_time", "max_patients", "doctor"]
+        fields = ["id", "start_time", "end_time", "doctor", "patient_left"]
 
 
 class ScheduleSerializer(serializers.ModelSerializer):
@@ -41,6 +41,8 @@ class DoctorSerializer(serializers.ModelSerializer):
             "education",
             "specialty",
             "about",
+            "address_line1",
+            "address_line2",
             "status",
             "is_verified",
             "degree_document",

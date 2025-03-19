@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { refreshToken, logout } from '../services/authService';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 const authAPI = axios.create({
@@ -44,12 +44,12 @@ authAPI.interceptors.response.use(
       }
     }
 
-    // Handle other errors
-    if (error.response?.status === 400) {
-      toast.error(error.response.data.message || "Invalid request.");
-    } else if (error.response?.status === 500) {
-      toast.error("Server error. Please try again later.");
-    }
+    // // Handle other errors
+    // if (error.response?.status === 400) {
+    //   toast.error(error?.response?.data?.detail || "Invalid request.");
+    // } else if (error.response?.status === 500) {
+    //   toast.error("Server error. Please try again later.");
+    // }
 
     return Promise.reject(error);
   }

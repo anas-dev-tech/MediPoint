@@ -13,8 +13,10 @@ import earning_icon from './earning_icon.svg'
 import patients_icon from './patients_icon.svg'
 import verified_icon from './verified_icon.svg'
 import profile_placeholder from  './profile_placeholder.png'
+import schedules_icon from './schedule.svg'
 
 export const assets = {
+    schedules_icon,
     add_icon,
     admin_logo,
     verified_icon,

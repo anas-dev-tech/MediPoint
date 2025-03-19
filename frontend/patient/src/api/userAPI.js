@@ -1,18 +1,16 @@
 import authAPI from "./authAPI";
 
 export const updateMe = async (user) => {
-  try {
+  
     const response = await authAPI.put("/auth/me/", user, {
       headers:{
         "Content-Type":"multipart/form-data"
       }
     });
+    console.log(response)
     console.log("status" , response.status)
     return { data: response.data, success: response.status === 200 };
-  } catch (error) {
-    console.error("Error updating user:", error.message || error);
-    throw error; // Re-throw the error if you want the calling component to handle it
-  }
+  
 };
 
 export const changePassword = async (oldPassword, newPassword) => {

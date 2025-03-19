@@ -4,7 +4,7 @@ POST http://127.0.0.1:8000/api/auth/token/ HTTP/1.1
 content-type: application/json
 
 {
-    "email": "emily@gmail.com",
+    "email": "anoshpop807@gmail.com",
     "password": "Anas775995183"
 }
 
@@ -13,7 +13,7 @@ content-type: application/json
 
 
 ### Update user profile using the stored token
-GET http://127.0.0.1:8000/api/appointments/ HTTP/1.1
+GET http://127.0.0.1:8000/api/appointments/?page_size=2 HTTP/1.1
 Authorization: Bearer {{access}}
 content-type: application/json
 

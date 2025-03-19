@@ -1,14 +1,15 @@
 // import React from 'react'
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { register } from '../services/authService';
-
+import { BeatLoader } from 'react-spinners';
 const Login = () => {
     const { login, isAuthenticated } = useAuth();
     const [isSignUp, setIsSignUp] = useState(false)
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false)
     const [formData, setFormData] = useState({
         full_name: "",
         email: "",
@@ -47,6 +48,7 @@ const Login = () => {
 
     const onSubmitHandler = async (event) => {
         event.preventDefault();
+        setIsLoading(true)
         if (isSignUp) {
             try {
                 const { data, success } = await register(formData.full_name, formData.email, formData.password, formData.password2)
@@ -61,18 +63,21 @@ const Login = () => {
                         ...prevErrors,
                         ...data
                     }));
-
                 }
             } catch (error) {
                 console.log(error)
                 toast.error(error)
+            } finally {
+                setIsLoading(false)
             }
         } else {
             try {
                 const { success, message } = await login(formData.email, formData.password);
                 if (success) {
                     toast.success(message)
+                    console.log("status login:", success)
                     navigate('/');
+
                 } else {
                     toast.error(message);
                 }
@@ -80,6 +85,8 @@ const Login = () => {
             } catch (error) {
                 console.log(error);
                 toast.error(error.response?.data?.detail || error.detail);
+            } finally {
+                setIsLoading(false)
             }
         }
     };
@@ -89,7 +96,12 @@ const Login = () => {
         <form onSubmit={onSubmitHandler} className='min-h-[80vh] flex items-center '>
             <div className='flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border-none rounded-xl text-[#5e5e5e] text-sm shadow-lg'>
                 <p className='text-2xl m-auto font-semibold'>
-                    <span className='text-primary'>Doctor</span> Login
+                    <span className='text-primary'>Doctor</span> 
+                    {
+                    isSignUp 
+                    ? 'Sign up'
+                    :'Login'
+                    }
                 </p>
 
                 {isSignUp && (
@@ -109,21 +121,21 @@ const Login = () => {
                     </div>
                 )}
 
-                   
+
                 <div className='w-full'>
                     <p>Email</p>
                     <input name='email' value={formData.email} onChange={handleInputChange} className='border border-[#DADADA] rounded w-full p-2 mt-1' type="email" required />
                     <p className="text-red-800 text-sm">
-                            {errors.email}
-                        </p>
+                        {errors.email}
+                    </p>
                 </div>
 
                 <div className='w-full'>
                     <p>Password</p>
                     <input name='password' value={formData.password} onChange={handleInputChange} className='border border-[#DADADA] rounded w-full p-2 mt-1' type="password" required />
                     <p className="text-red-800 text-sm">
-                            {errors.password}
-                        </p>
+                        {errors.password}
+                    </p>
                 </div>
 
                 {isSignUp &&
@@ -143,38 +155,42 @@ const Login = () => {
                     </div>
                 }
 
-<button
-          type="submit"
-          className="bg-primary text-white w-full py-2 rounded-md text-base hover:scale-105 transition-all duration-300"
-        >
-          <p>{isSignUp ? 'Create Account' : 'Login'}</p>
-        </button>
-        {isSignUp ? (
-          <p>
-            Already have an account?{' '}
-            <span
-              onClick={() => setIsSignUp(false)}
-              className="text-primary underline cursor-pointer"
-            >
-              Login here
-            </span>
-          </p>
-        ) : (
-          <p>
-            Create a new account?{' '}
-            <span
-              onClick={() => setIsSignUp(true)}
-              className="text-primary underline cursor-pointer"
-            >
-              Click here
-            </span>
-          </p>
-        )}
-        {!isSignUp && (
-          <p onClick={() => navigate('/password-reset')} className='text-primary text-sm underline hover:cursor-pointer'>
-            Did you forget your password?
-          </p>
-        )}
+                <button
+                    type="submit"
+                    className="bg-primary text-white w-full py-2 rounded-md text-base hover:scale-105 transition-all duration-300"
+                >
+                    {isLoading
+                    ? <BeatLoader color='white' size={10}/>
+                    :<p>{isSignUp ? 'Create Account' : 'Login'}</p>
+                    }
+
+                </button>
+                {isSignUp ? (
+                    <p>
+                        Already have an account?{' '}
+                        <span
+                            onClick={() => setIsSignUp(false)}
+                            className="text-primary underline cursor-pointer"
+                        >
+                            Login here
+                        </span>
+                    </p>
+                ) : (
+                    <p>
+                        Create a new account?{' '}
+                        <span
+                            onClick={() => setIsSignUp(true)}
+                            className="text-primary underline cursor-pointer"
+                        >
+                            Click here
+                        </span>
+                    </p>
+                )}
+                {!isSignUp && (
+                    <p onClick={() => navigate('/password-reset')} className='text-primary text-sm underline hover:cursor-pointer'>
+                        Did you forget your password?
+                    </p>
+                )}
             </div>
         </form>
     )

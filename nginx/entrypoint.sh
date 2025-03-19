@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # List of enabled sites (modify this to enable/disable sites)
-ENABLED_SITES=("backend.conf" "patient.conf" "doctor.conf" "redirect.conf")
+ENABLED_SITES=("backend.conf" "redirect.conf")
 
 # Ensure the sites-enabled directory is empty (to avoid duplicate links)
 rm -rf /etc/nginx/sites-enabled/*

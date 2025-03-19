@@ -1,8 +1,10 @@
 from django.contrib import admin
+from django.contrib import messages
+from django.contrib import messages
+
+from users.tasks import send_email_template
 from .models import Doctor, Specialty, Schedule, WorkingHours
 from .forms import ScheduleTabularInlineModelForm
-from django.contrib import messages
-from users.tasks import send_email_template
 
 @admin.register(Specialty)
 class SpecialtyAdmin(admin.ModelAdmin):
@@ -27,11 +29,12 @@ class ScheduleAdmin(admin.ModelAdmin):
 @admin.register(WorkingHours)
 class WorkingHoursAdmin(admin.ModelAdmin):
     list_display = ['start_time', 'end_time','doctor']
+    list_filter = ['doctor__user__full_name']
+    search_fields = ['doctor']
 
 
 
 
-from django.contrib import messages
 
 @admin.action(description="Verify selected doctors")
 def verify_doctors(modeladmin, request, queryset):

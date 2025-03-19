@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import toast from 'react-hot-toast';
 import useAuth from "../hooks/useAuth";
 import { BeatLoader } from 'react-spinners'
 

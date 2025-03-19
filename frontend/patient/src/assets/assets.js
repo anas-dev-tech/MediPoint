@@ -15,11 +15,13 @@ import upload_icon from './upload_icon.png'
 import stripe_logo from './stripe_logo.png'
 import razorpay_logo from './razorpay_logo.png'
 import profile_placeholder from './profile_placeholder.png'
+import chatbot_floating_icon from './chatbot_floating_icon.svg'
 
 
 
 export const assets = {
     appointment_img,
+    chatbot_floating_icon,
     header_img,
     group_profiles,
     chats_icon,

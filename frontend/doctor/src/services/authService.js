@@ -1,6 +1,7 @@
-import { toast } from "react-toastify";
+import toast from 'react-hot-toast';
 import publicAPI from "../api/publicAPI";
 import { jwtDecode } from "jwt-decode";
+
 
 // Refresh the access token
 export const refreshToken = async () => {
@@ -15,10 +16,9 @@ export const refreshToken = async () => {
       return response.data.access;
     } else {
       toast.error("Please Login first");
-      window.location.href = "/login";
+      logout();
     }
   } catch (error) {
-    logout();
     throw error;
   }
 };
@@ -63,6 +63,12 @@ export const login = async (email, password) => {
     }
     const { access, refresh } = response.data;
 
+    const {role} = jwtDecode(access);
+    
+    
+    if( role !== 'D'){
+      return { success: false, message: "Only doctors are allowed here" };
+    }
     localStorage.setItem("accessToken", access);
     localStorage.setItem("refreshToken", refresh);
 
@@ -70,21 +76,23 @@ export const login = async (email, password) => {
   } catch (error) {
     return {
       success: false,
-      message: error.response?.data?.message || "Login failed",
+      message: error.response?.data?.detail || "Login failed",
     };
   }
 };
+
 // Log the user out
 export const logout = () => {
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("accessToken");
-  window.location.href = "/login";
 };
 
 export const getUserRoleFromToken = () => {
   try {
     const accessToken = localStorage.getItem("accessToken");
-
+    if (!accessToken){
+      return null
+    }
     const decoded = jwtDecode(accessToken);
 
     // Extract the 'role' claim

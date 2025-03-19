@@ -1,12 +1,9 @@
-from django.db import models
 from doctors.models import Doctor, WorkingHours
-from patients.models import Patient
 from django.core.exceptions import ValidationError
+from django.db import models
+from patients.models import Patient
+from django.utils import timezone
 
-
-class AppointmentModelManger(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().order_by('-working_hours__start_time')
 
 
 class Appointment(models.Model):
@@ -36,11 +33,13 @@ class Appointment(models.Model):
     )
     fees = models.DecimalField(max_digits=5, decimal_places=2)
 
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
     additional_info = models.TextField(blank=True, null=True)
     payment_id = models.CharField(max_length=100, blank=True, null=True)
-    objects = AppointmentModelManger()
     
+    # objects = AppointmentModelManger()
     
+        
     def __str__(self):
         return f'{self.patient} - {self.doctor}'
     
@@ -48,6 +47,8 @@ class Appointment(models.Model):
         if(self.status != Appointment.Status.PENDING):
             raise ValidationError('Appointment can be cancelled only when they are pending')
         self.status = Appointment.Status.CANCELLED
+        self.working_hours.patient_left += 1
+        
         self.save()
         
     def complete(self):

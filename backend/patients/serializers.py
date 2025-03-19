@@ -19,10 +19,6 @@ class PatientSerializer(serializers.ModelSerializer):
                 user_serializer.save()
         else:
             raise serializers.ValidationError("User object does not exists")
-        
-        # Update Doctor fields
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
 
         instance.save()
         return instance

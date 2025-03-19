@@ -78,6 +78,7 @@ services:
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
     volumes:
       - ./backend:/backend
+      - ./backend/media:/backend/media
       - /etc/ssl/cert.pem:/etc/ssl/cert.pem:ro
       - /etc/ssl/key.pem:/etc/ssl/key.pem:ro
       - ./frontend/patient/dist/:/usr/share/nginx/html/patient
