@@ -48,7 +48,7 @@ Ensure you have the following installed:
 1. Clone the repository:
    ```sh
    git clone https://github.com/anas-dev-tech/MediPoint.git
-   cd yourproject
+   cd MediPoint
    ```
 2. Set up the required API keys and secret environment variables. Create a `.env.production` for production  file in the `backend` folder and add your configurations:
    ```sh
