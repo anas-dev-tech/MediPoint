@@ -42,6 +42,7 @@ MediPoint is an AI-powered doctor appointment booking system that provides patie
 ### Prerequisites
 Ensure you have the following installed:
 - Docker & Docker Compose
+- nodejs and npm > v20 
 
 ### Deployment
 1. Clone the repository:
