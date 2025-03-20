@@ -51,6 +51,7 @@ const Login = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
+    setLoading(true)
     try {
       if (isSignUp) {
         const { data, success } = await register(formData.full_name, formData.email, formData.password, formData.password2);
@@ -66,7 +67,6 @@ const Login = () => {
           }));
         }
       } else {
-        setLoading(true)
         const { data, success } = await login(formData.email, formData.password);
         if (success) {
           await getUser();
@@ -82,6 +82,8 @@ const Login = () => {
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.detail || error.detail);
+    }finally{
+      setLoading(false)
     }
   };
 
