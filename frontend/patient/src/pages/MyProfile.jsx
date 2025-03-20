@@ -4,7 +4,7 @@ import useAuth from "../hooks/useAuth";
 import { updateMe, changePassword } from "../api/userAPI";
 import { useNavigate } from 'react-router-dom';
 import { assets } from "../assets/assets";
-import { BeatLoader} from 'react-spinners'
+import { BeatLoader } from 'react-spinners'
 
 
 const MyProfile = () => {
@@ -44,7 +44,7 @@ const MyProfile = () => {
         const file = e.target?.files?.[0];
         if (file) setImage(file);
     };
-    
+
 
     const handleChangePassword = async () => {
         try {
@@ -67,7 +67,7 @@ const MyProfile = () => {
             if (fullName.trim() && fullName !== userData.full_name) formData.append("user[full_name]", fullName);
             if (gender !== userData.gender) formData.append("user[gender]", gender);
             if (dob) formData.append("user[dob]", dob);
-            console.log('date ', dob, typeof dob, !dob, dob!== null)
+            console.log('date ', dob, typeof dob, !dob, dob !== null)
             if (image) formData.append("user[image]", image);
             console.log("image-> ", image)
             console.log("formD", formData)
@@ -82,7 +82,7 @@ const MyProfile = () => {
             }
         } catch (err) {
             toast.error(err.message || "Failed to update user");
-        }finally{
+        } finally {
             setIsLoading(false)
         }
 
@@ -94,69 +94,109 @@ const MyProfile = () => {
         <div className="max-w-lg flex flex-col gap-2 text-sm p-4">
             {isEdit ? (
                 <form onSubmit={updateUserProfileData} encType="multipart/form-data">
-                    <label htmlFor="image">
-                        <div className="inline-block relative cursor-pointer">
-                            <img className="w-36 rounded opacity-75" src={profileImage} alt="Profile" />
-                        </div>
-                        <input type="file" id="image" hidden onChange={handleImageChange} />
-                    </label>
-                    <br />
-                    <input className="bg-gray-50 text-3xl font-medium max-w-60 mt-4" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-                    <hr className="bg-zinc-400 h-[1px] border-none" />
-                    <p className="text-neutral-500 underline mt-3">Contact Info</p>
-                    <p className="text-lg font-medium">
-                        Email: <span className="ps-3 text-blue-500">{userData.email}</span>
-                    </p>
-
-                    <div className="mt-1">
-                        <label className="text-lg font-medium">Birthday:
-                            <input className="ms-3 max-w-30 bg-gray-100" type="date" value={dob} onChange={(e) => setDob(e.target.value)} />
+                    <div className="w-full mx-auto flex flex-col justify-center items-center">
+                        <label className="block" htmlFor="image">
+                            {/* Container for the image and the + sign */}
+                            <div className="inline-block relative cursor-pointer">
+                                {/* Image */}
+                                <img
+                                    className="w-36 h-36 rounded-full opacity-75"
+                                    src={profileImage}
+                                    alt="Profile"
+                                />
+                                {/* + sign centered on the image */}
+                                <div className="absolute inset-0 flex justify-center items-end">
+                                    <div className="text-4xl z-20 bg-primary text-white rounded-full w-12 h-12 flex justify-center items-center">
+                                        +
+                                    </div>
+                                </div>
+                            </div>
+                            {/* File input */}
+                            <input
+                                type="file"
+                                id="image"
+                                hidden
+                                onChange={handleImageChange}
+                            />
                         </label>
+                        {/* Name input */}
+                        <input
+                            className="text-3xl bg-white  font-medium max-w-60 my-1 text-center border-2 border-gray-300 rounded-lg p-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200"
+                            type="text"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            placeholder="Enter your name"
+                        />
                     </div>
 
-                    <p className="text-neutral-500 underline mt-3">Basic Information</p>
-                    <label className="text-lg font-medium">Gender:
-                        <select className="ms-3 max-w-20 bg-gray-100" value={gender} onChange={(e) => setGender(e.target.value)}>
+                    <hr className="bg-zinc-200  my-4 h-[1px] border-none" />
+
+                    <p className="text-neutral-500 mt-3">Contact Info</p>
+                    <p className="ms-4 mt-2 text-lg font-medium">
+                        Email: <span className="ps-3 text-gray-500">{userData.email}</span>
+                    </p>
+
+
+                    <p className="text-neutral-500 mt-5">Basic Information</p>
+
+
+
+                    <div className="mt-2 ms-4 flex justify-between items-center w-60">
+                        <label htmlFor="birthday" className=" text-lg font-medium">Birthday
+                        </label>
+                        <input id="birthday" className="w-40 ms-3 max-w-30 bg-gray-100 bg-white  font-medium max-w-60 my-1 text-center border-2 border-gray-300 rounded-lg p-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200" type="date" value={dob} onChange={(e) => setDob(e.target.value)} />
+                    </div>
+                    <div className="ms-4 flex justify-between items-center w-60">
+                        <label htmlFor="gender" className="text-lg font-medium">Gender
+                        </label>
+                        <select id="gender" className="w-40 ms-3 max-w-20 bg-gray-100 bg-white  font-medium max-w-60 my-1 text-center border-2 border-gray-300 rounded-lg p-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200" value={gender} onChange={(e) => setGender(e.target.value)}>
                             <option value="M">Male</option>
                             <option value="F">Female</option>
                         </select>
-                    </label>
+                    </div>
 
 
                     <br />
 
-                    <button type="button" 
-                        onClick={()=>setIsEdit(false)}
+                    <button type="button"
+                        onClick={() => setIsEdit(false)}
                         className="mt-5 me-5 bg-red-500  px-8 py-2 rounded-full text-white hover:scale-105 transition-all duration-400"
                     >Cancel</button>
 
                     <button type="submit" className="mt-5  px-8 py-2 rounded-full text-white bg-primary hover:scale-105  transition-all duration-400">
-                        { isLoading 
-                        ? <BeatLoader color="white" size={12} />
-                        : <span>
-                            Save Information
+                        {isLoading
+                            ? <BeatLoader color="white" size={12} />
+                            : <span>
+                                Save Information
                             </span>
-                        
+
                         }
 
                     </button>
                 </form>
             ) : (
+                // Edit section
                 <>
-                    <img className="w-36 rounded" src={profileImage} alt="Profile" />
+                    <div className="w-full flex flex-col justify-center items-center">
+                        <img className="w-36 h-36 rounded-full" src={profileImage} alt="Profile" />
 
-                    <p className="font-medium text-3xl text-neutral-800 mt-4">{userData.full_name}</p>
+                        <p className="font-medium text-3xl text-neutral-800 mt-4">{userData.full_name}</p>
+                    </div>
+
                     <hr className="bg-zinc-400 h-[1px] border-none" />
-                    <p className="text-neutral-500 underline mt-3">Contact Info</p>
-                    <p className="text-lg font-medium">Email:
-                        <span className="ps-3 text-blue-500">{userData.email}</span>
+
+                    <p className="text-neutral-500 mt-3">Contact Info</p>
+                    <p className="ms-3 text-lg font-medium">Email:
+                        <span className="ps-3 text-gray-500">{userData.email}</span>
                     </p>
-                    <p className="font-medium">Birthday:</p>
-                    <p className="text-gray-400">{userData.dob}</p>
-                    <p className="text-neutral-500 underline mt-3">Basic Information</p>
-                    <p className="font-medium">Gender:</p>
-                    <p className="text-gray-400">{userData.gender}</p>
-                    <button className="bg-primary text-white border border-primary px-8 py-2 rounded-full hover:scale-105 transition-all duration-500" onClick={() => setIsEdit(true)}>Edit</button>
+                    <p className="text-neutral-500 mt-3">Basic Information</p>
+                    <p className="ms-3 text-lg font-medium">Birthday:
+                        <span className="ms-2 text-gray-500">{userData.dob || "Unset"}</span>
+                    </p>
+                    <p className="ms-3 text-lg font-medium">Gender:
+                        <span className="ms-2 text-gray-500">{userData.gender}</span>
+                    </p>
+                    <button className="mt-4 bg-primary text-white border border-primary px-8 py-2 rounded-full hover:scale-105 transition-all duration-500" onClick={() => setIsEdit(true)}>Edit</button>
                     <button onClick={() => setShowPasswordModal(true)} className='text-primary underline mt-5'>Change Password</button>
                 </>
             )}

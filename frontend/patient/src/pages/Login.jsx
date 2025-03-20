@@ -7,7 +7,8 @@ import { BeatLoader } from 'react-spinners'
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
-  const { login, register, loading, setIsAuthenticated, setLoading, getUser, isAuthenticated } = useAuth();
+  const { login, register, setIsAuthenticated, getUser, isAuthenticated } = useAuth();
+  const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     full_name: "",
@@ -51,7 +52,7 @@ const Login = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
-    setLoading(true)
+    setIsLoading(true)
     try {
       if (isSignUp) {
         const { data, success } = await register(formData.full_name, formData.email, formData.password, formData.password2);
@@ -73,17 +74,15 @@ const Login = () => {
           setIsAuthenticated(true)
           toast.success("Logged in successfully");
           navigate('/')
-          setLoading(false)
         } else {
           toast.error(data.detail);
-          setLoading(false)
         }
       }
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.detail || error.detail);
     }finally{
-      setLoading(false)
+      setIsLoading(false)
     }
   };
 
@@ -158,7 +157,7 @@ const Login = () => {
           type="submit"
           className="bg-primary text-white w-full py-2 rounded-md text-base hover:scale-105 transition-all duration-300"
         >
-          {loading
+          {isLoading
             ? <BeatLoader size={10} color="#ffffff" />
             : <p>{isSignUp ? 'Create Account' : 'Login'}</p>
           }

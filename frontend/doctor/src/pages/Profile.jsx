@@ -131,7 +131,9 @@ const Profile = () => {
                   />
                   {isEdit && (
                     <Label className="absolute bottom-0 w-full left-0 right-0 bg-primary/80 text-white text-center py-1 cursor-pointer">
-                      Change Photo
+                      <div className='w-full text-xs'>
+                      Change
+                      </div>
                       <Input
                         {...register("user.image",
 
